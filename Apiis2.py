@@ -1,42 +1,65 @@
 import openai
 
-openai.api_key = "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"
+# Configura tu clave de API de OpenAI
+openai.api_key = "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"
+
+# Variable global para almacenar la última consulta
+ultima_consulta = ""
+
+def obtener_respuesta(input_text):
+    try:
+        # Invoca la API de chatGPT para obtener una respuesta
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=input_text,
+            max_tokens=50
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print("Error al obtener respuesta de chatGPT:", e)
+        return None
 
 def main():
-    try:
-        # Solicita la consulta al usuario
+    global ultima_consulta  # Declarar que la variable global será modificada dentro de esta función
+
+    while True:
         try:
-            query = input("Ingrese su consulta: ")
-            if not query.strip():
-                print("La consulta está vacía.")
-                return
-        except Exception as input_error:
-            print("Error al solicitar la consulta:", input_error)
-            return
+            # Acepta una consulta del usuario
+            consulta = input("You: ")
 
-        # Imprime la consulta del usuario
-        print("You:", query)
+            # Verifica si la consulta tiene texto
+            if consulta.strip():
+                try:
+                    # Imprime la consulta del usuario
+                    print("You:", consulta)
 
-        # Invoca el modelo de ChatGPT con la consulta del usuario
+                    # Almacena la consulta como la última consulta realizada
+                    ultima_consulta = consulta
+
+                    # Invoca la API de chatGPT con la consulta del usuario
+                    respuesta = obtener_respuesta(consulta)
+
+                    if respuesta is not None:
+                        # Imprime la respuesta de chatGPT
+                        print("chatGPT:", respuesta)
+                    else:
+                        print("No se pudo obtener una respuesta.")
+                except Exception as e:
+                    print("Error en el tratamiento de la consulta:", e)
+            else:
+                print("Por favor ingresa una consulta válida.")
+        except KeyboardInterrupt:
+            print("\n¡Adiós!")
+            break
+
+        # Manejar la edición de la última consulta con la tecla "cursor Up"
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0613",  # Updated model
-                messages=[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": query}],
-                max_tokens=50,
-                temperature=0.7
-            )
-        except Exception as api_error:
-            print("Error al invocar el modelo de ChatGPT:", api_error)
-            return
-
-        # Imprime la respuesta de ChatGPT
-        try:
-            print("chatGPT:", response.choices[0].message['content'].strip())
-        except Exception as response_error:
-            print("Error al obtener la respuesta de ChatGPT:", response_error)
-
-    except Exception as e:
-        print("Error general:", e)
+            consulta_editada = input("You (Editar, Enter para enviar): " + ultima_consulta)
+            if consulta_editada.strip():
+                ultima_consulta = consulta_editada
+        except KeyboardInterrupt:
+            print("\n¡Adiós!")
+            break
 
 if __name__ == "__main__":
     main()
