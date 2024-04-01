@@ -1,7 +1,7 @@
 import openai
 
 # Configura tu clave de API de OpenAI
-openai.api_key = "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"
+openai.api_key = 'tu_api_key'
 
 # Variable global para almacenar la última consulta
 ultima_consulta = ""
@@ -9,12 +9,13 @@ ultima_consulta = ""
 def obtener_respuesta(input_text):
     try:
         # Invoca la API de chatGPT para obtener una respuesta
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=input_text,
-            max_tokens=50
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613",
+            messages=[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": input_text}],
+            max_tokens=50,
+            temperature=0.7
         )
-        return response.choices[0].text.strip()
+        return response.choices[0].message['content']
     except Exception as e:
         print("Error al obtener respuesta de chatGPT:", e)
         return None
